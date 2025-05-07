@@ -11,6 +11,7 @@ function App() {
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [gameMode, setGameMode] = useState(null) // 'ai' or 'player'
   const [difficulty, setDifficulty] = useState('medium') // 'easy', 'medium', 'hard'
+  const [winner, setWinner] = useState(null)
 
   const winningCombinations = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
@@ -42,7 +43,6 @@ function App() {
     for (const line of winningCombinations) {
       const [a, b, c] = line
       if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        setWinningLine(line)
         return squares[a]
       }
     }
@@ -56,39 +56,16 @@ function App() {
     }, [])
   }
 
-  const evaluateBoard = (squares, depth) => {
+  const evaluateBoard = (squares) => {
     const winner = checkWinner(squares)
-    if (winner === '⭕') return 100 - depth
-    if (winner === '❌') return depth - 100
-    
-    // Strategic positions evaluation
-    let score = 0
-    // Center control
-    if (squares[4] === '⭕') score += 5
-    
-    // Corner control
-    const corners = [0, 2, 6, 8]
-    corners.forEach(corner => {
-      if (squares[corner] === '⭕') score += 3
-    })
-    
-    // Two in a row opportunities
-    winningCombinations.forEach(([a, b, c]) => {
-      const line = [squares[a], squares[b], squares[c]]
-      if (line.filter(cell => cell === '⭕').length === 2 && line.includes(null)) {
-        score += 10
-      }
-      if (line.filter(cell => cell === '❌').length === 2 && line.includes(null)) {
-        score -= 8 // Defensive priority
-      }
-    })
-    
-    return score
+    if (winner === '⭕') return 1
+    if (winner === '❌') return -1
+    return 0
   }
 
   const minimax = (squares, depth, isMaximizing, alpha = -Infinity, beta = Infinity) => {
     if (checkWinner(squares) || !squares.includes(null) || depth > 6) {
-      return evaluateBoard(squares, depth)
+      return evaluateBoard(squares)
     }
 
     if (isMaximizing) {
@@ -96,7 +73,7 @@ function App() {
       for (let i = 0; i < squares.length; i++) {
         if (!squares[i]) {
           squares[i] = '⭕'
-            const evaluation = minimax(squares, depth + 1, false, alpha, beta)
+          const evaluation = minimax(squares, depth + 1, false, alpha, beta)
           squares[i] = null
           maxEval = Math.max(maxEval, evaluation)
           alpha = Math.max(alpha, evaluation)
@@ -123,32 +100,18 @@ function App() {
   const getBestMove = (squares) => {
     if (difficulty === 'easy') {
       const emptyCells = getEmptyCells(squares)
-      if (Math.random() < 0.7) { // 70% random moves
-        return emptyCells[Math.floor(Math.random() * emptyCells.length)]
-      }
+      return emptyCells[Math.floor(Math.random() * emptyCells.length)]
     }
 
     if (difficulty === 'medium') {
-      if (Math.random() < 0.4) { // 40% random moves
-        const emptyCells = getEmptyCells(squares)
+      const emptyCells = getEmptyCells(squares)
+      if (Math.random() < 0.5) {
         return emptyCells[Math.floor(Math.random() * emptyCells.length)]
-      }
-    }
-
-    // Strategic first moves for better gameplay
-    if (squares.filter(cell => cell !== null).length <= 1) {
-      // If center is empty, take it
-      if (!squares[4]) return 4
-      // If center is taken and corner is empty, take a corner
-      const corners = [0, 2, 6, 8]
-      const emptyCorners = corners.filter(i => !squares[i])
-      if (emptyCorners.length > 0) {
-        return emptyCorners[Math.floor(Math.random() * emptyCorners.length)]
       }
     }
 
     let bestScore = -Infinity
-    let bestMove = null
+    let bestMoves = []
     
     for (let i = 0; i < squares.length; i++) {
       if (!squares[i]) {
@@ -156,15 +119,16 @@ function App() {
         const score = minimax(squares, 0, false)
         squares[i] = null
         
-        // Add randomness to equivalent moves
-        const randomFactor = Math.random() * 0.2 // Small random factor
-        if (score + randomFactor > bestScore) {
+        if (score > bestScore) {
           bestScore = score
-          bestMove = i
+          bestMoves = [i]
+        } else if (score === bestScore) {
+          bestMoves.push(i)
         }
       }
     }
-    return bestMove
+
+    return bestMoves[Math.floor(Math.random() * bestMoves.length)]
   }
 
   const handleClick = (index) => {
@@ -174,41 +138,55 @@ function App() {
     newBoard[index] = isXNext ? '❌' : '⭕'
     setBoard(newBoard)
 
-    const winner = checkWinner(newBoard)
-    if (winner || !newBoard.includes(null)) {
-      if (winner) {
+    const currentWinner = checkWinner(newBoard)
+    const isDraw = !newBoard.includes(null)
+    
+    if (currentWinner || isDraw) {
+      if (currentWinner) {
+        setWinner(currentWinner)
+        setWinningLine(winningCombinations.find(([a, b, c]) => 
+          newBoard[a] === currentWinner && newBoard[b] === currentWinner && newBoard[c] === currentWinner
+        ))
         setScore(prev => ({
           ...prev,
-          [winner === '❌' ? 'X' : 'O']: prev[winner === '❌' ? 'X' : 'O'] + 1
+          [currentWinner === '❌' ? 'X' : 'O']: prev[currentWinner === '❌' ? 'X' : 'O'] + 1
         }))
       }
       setGameOver(true)
-    } else {
-      setIsXNext(!isXNext)
-      
-      // AI move
-      if (gameMode === 'ai' && isXNext) {
-        setTimeout(() => {
-          const aiMove = getBestMove(newBoard)
-          if (aiMove !== null) {
-            const aiBoard = [...newBoard]
-            aiBoard[aiMove] = '⭕'
-            setBoard(aiBoard)
-            const aiWinner = checkWinner(aiBoard)
-            if (aiWinner || !aiBoard.includes(null)) {
-              if (aiWinner) {
-                setScore(prev => ({
-                  ...prev,
-                  [aiWinner === '❌' ? 'X' : 'O']: prev[aiWinner === '❌' ? 'X' : 'O'] + 1
-                }))
-              }
-              setGameOver(true)
-            } else {
-              setIsXNext(true)
+      return
+    }
+
+    setIsXNext(!isXNext)
+    
+    // AI move
+    if (gameMode === 'ai' && isXNext) {
+      setTimeout(() => {
+        const aiMove = getBestMove(newBoard)
+        if (aiMove !== null) {
+          const aiBoard = [...newBoard]
+          aiBoard[aiMove] = '⭕'
+          setBoard(aiBoard)
+          
+          const aiWinner = checkWinner(aiBoard)
+          const isAiDraw = !aiBoard.includes(null)
+          
+          if (aiWinner || isAiDraw) {
+            if (aiWinner) {
+              setWinner(aiWinner)
+              setWinningLine(winningCombinations.find(([a, b, c]) => 
+                aiBoard[a] === aiWinner && aiBoard[b] === aiWinner && aiBoard[c] === aiWinner
+              ))
+              setScore(prev => ({
+                ...prev,
+                [aiWinner === '❌' ? 'X' : 'O']: prev[aiWinner === '❌' ? 'X' : 'O'] + 1
+              }))
             }
+            setGameOver(true)
+          } else {
+            setIsXNext(true)
           }
-        }, 500)
-      }
+        }
+      }, 500)
     }
   }
 
@@ -217,6 +195,7 @@ function App() {
     setIsXNext(true)
     setGameOver(false)
     setWinningLine(null)
+    setWinner(null)
   }
 
   const startGame = (mode) => {
@@ -225,11 +204,9 @@ function App() {
   }
 
   const renderCell = (index) => {
-    const isWinning = winningLine?.includes(index)
     return (
       <motion.button
-        className={`cell ${isWinning ? 'winning' : ''} ${board[index] ? 'filled' : ''}`}
-        whileHover={!board[index] && !gameOver ? { scale: 1.1 } : {}}
+        className={`cell ${board[index] ? 'filled' : ''}`}
         whileTap={{ scale: 0.95 }}
         onClick={() => handleClick(index)}
         aria-label={`Cell ${index + 1}, ${board[index] || 'empty'}`}
@@ -344,8 +321,8 @@ function App() {
 
       <div className="status">
         {gameOver ? (
-          winningLine ? 
-            `Winner: ${isXNext ? '⭕' : '❌'}` : 
+          winner ? 
+            `Winner: ${winner}` : 
             "It's a draw!"
         ) : (
           `Next player: ${isXNext ? '❌' : '⭕'}`
