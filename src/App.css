@@ -52,7 +52,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: min(1.5rem, 3vh);
+  gap: min(1rem, 2vh);
   margin: auto;
   text-align: center;
   position: relative;
@@ -107,11 +107,11 @@
 
 .status {
   font-size: clamp(1rem, 3vw, 1.25rem);
-  margin: 0.5rem 0;
+  margin: 0;
   min-height: 1.5em;
   background: var(--cell-bg);
-  padding: 0.75rem 1.5rem;
-  border-radius: 12px;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
   border: 1px solid var(--border-color);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(8px);
@@ -124,7 +124,7 @@
   gap: min(0.5rem, 1vh);
   width: min(90vw, min(350px, 60vh));
   aspect-ratio: 1;
-  margin: 0 auto;
+  margin: 0;
 }
 
 .cell {
@@ -178,6 +178,105 @@
   opacity: 0.9;
 }
 
+.restart-button {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.restart-button:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mode-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 300px;
+  margin: 2rem auto;
+}
+
+.mode-button {
+  padding: 1rem;
+  font-size: 1.2rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.mode-button:hover {
+  background: var(--primary-hover);
+}
+
+.difficulty-selection {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.difficulty-button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background: var(--cell-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.difficulty-button.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.back-button {
+  position: fixed;
+  top: clamp(0.5rem, 2vw, 1rem);
+  left: clamp(0.5rem, 2vw, 1rem);
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  z-index: 10;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.back-button:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.back-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.back-text {
+  font-weight: 500;
+}
+
 @media (max-width: 480px) {
   .game-container {
     padding: 0.5rem;
@@ -199,6 +298,16 @@
   
   .theme-toggle {
     padding: 0.25rem;
+  }
+
+  .back-button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .restart-button {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
   }
 }
 
