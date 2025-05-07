@@ -1,0 +1,83 @@
+body {
+    background-color: #f0f2f5;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  h1 {
+    color: #343a40;
+  }
+  
+  .game-board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px); /* 3 columns, each 100px wide */
+    grid-template-rows: repeat(3, 100px); /* 3 rows, each 100px high */
+    gap: 12px;
+    margin: 30px auto;
+  }
+  
+  .cell {
+    width: 100px;
+    height: 100px;
+    background-color: #ffffff;
+    border: 2px solid #ced4da;
+    font-size: 2.5rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .cell:hover {
+    background-color: #e7f1ff;
+  }
+  
+  .cell.X {
+    color: #0d6efd;
+  }
+  
+  .cell.O {
+    color: #dc3545;
+  }
+  
+  #status {
+    color: #212529;
+    font-size: 1.25rem;
+  }
+  
+  #status.text-success {
+    color: #198754;
+  }
+  
+  #status.text-warning {
+    color: #ffc107;
+  }
+  
+  #resetBtn {
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .win {
+    background-color: #d1e7dd !important;
+    border-color: #0f5132 !important;
+  }
+  
+  #gameBoard {
+    display: grid;
+    grid-template-columns: repeat(3, 100px); /* 3 columns, 100px each */
+    gap: 10px;
+    justify-content: center;
+    margin: auto;
+  }
+  
+  .d-none {
+    display: none !important;
+  }
+  
+  button {
+    margin-top: 20px;
+  }
+  
